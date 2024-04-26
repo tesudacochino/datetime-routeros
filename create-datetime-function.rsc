@@ -1,3 +1,6 @@
+# Written by Phillip Stromberg in 2019
+# Licensed under the MIT license
+
 :global datetime do={
 
     # PART 1 - THE BASICS

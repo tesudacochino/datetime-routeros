@@ -33,6 +33,9 @@ The create-datetime-function script only needs to run once per boot. You can mak
 :put ([$datetime]->"S")
 ```
 
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
+
 ## Reference
 The variable names are taken from strftime/strptime function in C, Python, and PHP. Here is what is currently implemented:
   * **w** day of the week as an integer (Sunday=**0**, Monday=**1**, Saturday=**6**)
