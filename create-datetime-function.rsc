@@ -17,6 +17,11 @@
         "dec"="12"
     }
 
+    :local monthAbbrs [:toarray ""]
+    :foreach abbr,idx in=$months do={
+        :set ($monthAbbrs->$idx) $abbr;
+    }
+
     :local dNames {"Sunday"; "Monday"; "Tuesday"; "Wednesday"; "Thursday"; "Friday"; "Saturday"}
 
     :local dt
@@ -28,26 +33,47 @@
         :set ti [/system clock get time]
     } while=($dt != [/system clock get date])
 
-    :local b [:pick $dt 0 3 ]
-    :local Y [:pick $dt 7 11 ]
-    :local y [:pick $dt 9 11]
-    :local m ($months->$b)
-    :local d [:pick $dt 4 6]
-    :local H [:pick $ti 0 2]
-    # :local M [:pick $ti 3 5]
-    # :local S [:pick $ti 6 8]
-    # :local ymd "$Y-$m-$d"
-    :local I ($H % 12)
+    :local b;
+    :local Y;
+    :local y;
+    :local m;
+    :local d;
+    :local ymd;
+    :local datestr;
+
+    :local H [:pick $ti 0 2];
+    :local I ($H % 12);
+    :local p;
 
     :if ($I = 0) do={
         :set I 12
+    }
+
+    :if ( [:pick $dt 4] = "-" ) do={
+        # new RouterOS 7.10 change, datetime is returned in ISO 8601
+        :set m [:pick $dt 5 7];
+        :set Y [:pick $dt 0 4];
+        :set y [:pick $dt 2 4];
+        :set b ($monthAbbrs->$m);
+        :set d [:pick $dt 8 10];
+        :set ymd $dt;
+        # this emulates the old behavior
+        :set datestr "$b/$d/$Y";
+    } else={
+        # older RouterOS versions return the date more like "apr/26/2024"
+        :set b [:pick $dt 0 3];
+        :set Y [:pick $dt 7 11];
+        :set y [:pick $dt 9 11];
+        :set m ($months->$b);
+        :set d [:pick $dt 4 6];
+        :set ymd "$Y-$m-$d";
+        :set datestr $dt;
     }
 
     :if ([:len $I] < 2) do={
         :set I ("0$I")
     }
 
-    :local p
     :if ($H < 12) do={
         :set p "am"
     } else={
@@ -120,8 +146,8 @@
         "H"=$H
         "M"=[:pick $ti 3 5]
         "S"=[:pick $ti 6 8]
-        "date"=$dt
-        "ymd"="$Y-$m-$d"
+        "date"=$datestr
+        "ymd"=$ymd
         "I"=$I
         "p"=$p
         "z"=$z
